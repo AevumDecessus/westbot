@@ -1,0 +1,10 @@
+SHOW = "Westworld"
+DEBUG=False
+
+BOT_ID = 'BOTIDHERE'
+BOT_TOKEN = 'TOKENHERE'
+
+AT_BOT = "<@" + BOT_ID + ">"
+SUP_COMMAND = "sup"
+CURRENT_COMMAND = "current"
+
