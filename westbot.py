@@ -1,28 +1,33 @@
 import os
-import datetime
+import pytz
 import time
 
+from datetime import datetime
 from slackclient import SlackClient
 import tvdb_api
 
 from settings import *
 
+local_tz = pytz.timezone(LOCAL_TZ)
 HOUR = 0
 MIN = 0
 
 slack_client = SlackClient(BOT_TOKEN)
 t = tvdb_api.Tvdb()
 
+def utc_to_local(utc_dt):
+    local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
+    return local_dt.normalize(local_dt)
 
 def get_latest_episode():
     show = t[SHOW]
     last_aired = None
-    now = datetime.datetime.now()
+    now = utc_to_local(datetime.now())
     for s in show:
         season = show[s]
         for e in season:
             episode = season[e]
-            aired = datetime.datetime.strptime(episode['firstaired'] + ' ' + show['airs_time'], '%Y-%m-%d %I:%M %p')
+            aired = datetime.strptime(episode['firstaired'] + ' ' + show['airs_time'], '%Y-%m-%d %I:%M %p')
             if aired < now:
                 last_aired = episode
             else:
@@ -52,7 +57,7 @@ def get_my_channels():
     return my_channels
 
 def timed_commands():
-    now = datetime.datetime.now()
+    now = datetime.now()
     global HOUR
     global MIN
     if now.hour != HOUR:
@@ -106,10 +111,10 @@ if __name__ == "__main__":
     READ_WEBSOCKET_DELAY = 1
     if slack_client.rtm_connect():
         print("Westbot connected and running")
-        HOUR = datetime.datetime.now().hour
+        HOUR = datetime.now().hour
         if DEBUG:
             print "Cur Hour: " + str(HOUR)
-        MIN = datetime.datetime.now().minute
+        MIN = datetime.now().minute
         if DEBUG:
             print "Cur Min: " + str(MIN)
         while True:

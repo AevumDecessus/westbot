@@ -1,4 +1,5 @@
 SHOW = "Westworld"
+LOCAL_TZ = "UTC"
 DEBUG=False
 
 BOT_ID = 'BOTIDHERE'
