@@ -9,6 +9,7 @@ import tvdb_api
 from settings import *
 
 local_tz = pytz.timezone(LOCAL_TZ)
+server_tz = pytz.timezone(SERVER_TZ)
 HOUR = 0
 MIN = 0
 
@@ -16,8 +17,7 @@ slack_client = SlackClient(BOT_TOKEN)
 t = tvdb_api.Tvdb()
 
 def utc_to_local(utc_dt):
-    local_dt = utc_dt.replace(tzinfo=pytz.utc).astimezone(local_tz)
-    return local_dt.normalize(local_dt)
+    return local_tz.normalize(local_tz.localize(utc_dt)).astimezone(pytz.utc)
 
 def get_latest_episode():
     show = t[SHOW]
@@ -27,7 +27,7 @@ def get_latest_episode():
         season = show[s]
         for e in season:
             episode = season[e]
-            aired = datetime.strptime(episode['firstaired'] + ' ' + show['airs_time'], '%Y-%m-%d %I:%M %p')
+            aired = local_tz.localize(datetime.strptime(episode['firstaired'] + ' ' + show['airs_time'], '%Y-%m-%d %I:%M %p'))
             if aired < now:
                 last_aired = episode
             else:
@@ -68,6 +68,7 @@ def timed_commands():
     if now.minute != MIN:
         if DEBUG:
             print "New Minute: " + str(now.minute)
+        #run_minute_commands(
         run_minute_commands()
         MIN = now.minute
 
